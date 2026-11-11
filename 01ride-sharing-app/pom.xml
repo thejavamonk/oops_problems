@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>01ride-sharing-app</artifactId>
-    <name>Ride Sharing App</name>
+    <name>01ride-sharing-app</name>
 
     <dependencies>
         <dependency>

@@ -5,6 +5,7 @@ import com.codeprep.cinema.Seat;
 import com.codeprep.movie.Movie;
 import com.codeprep.price.Ticket;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,5 +48,34 @@ public class ScreeningManager {
             availableSeats.remove(ticket.getSeat());
         }
         return availableSeats;
+    }
+
+    //simplified optimistic locking screening manager
+    public synchronized Ticket bookSeatOptimistically(Screening screening, Seat seat) {
+
+        // first check if the seat is available (optimistic)
+        if (isSeatBooked(screening, seat)) {
+            throw new IllegalArgumentException("Seat is already booked");
+        }
+
+        // create ticket - at this point we are optimistically assuming the seat is still available
+        BigDecimal price = seat.getPricingStrategy().getPrice();
+        List<Seat> availableSeats = getAvailableSeats(screening);
+        if (availableSeats.contains(seat)) {
+            Ticket ticket = new Ticket(screening, seat, price);
+            addTicket(screening, ticket);
+            return ticket;
+        }
+        return null;
+    }
+
+    private boolean isSeatBooked(Screening screening, Seat seat) {
+        List<Ticket> tickets = getTicketsByScreening(screening);
+        for (Ticket ticket : tickets) {
+            if (ticket.getSeat().equals(seat)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
